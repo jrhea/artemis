@@ -21,9 +21,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import net.consensys.cava.bytes.Bytes32;
-import net.consensys.cava.crypto.SECP256K1.PublicKey;
 import org.apache.logging.log4j.Level;
 import tech.pegasys.artemis.datastructures.Constants;
 import tech.pegasys.artemis.datastructures.blocks.BeaconBlock;
@@ -52,19 +51,21 @@ public class ValidatorCoordinator {
 
   private StateTransition stateTransition;
   private final Boolean printEnabled = false;
-  private PublicKey nodeIdentity;
+  private int nodeIdentity;
   private int numValidators;
   private int numNodes;
   private BeaconBlock validatorBlock;
   private ArrayList<Deposit> newDeposits = new ArrayList<>();
   private final HashMap<BLSPublicKey, BLSKeyPair> validatorSet = new HashMap<>();
-  private final PriorityQueue<Attestation> attestationsQueue =
-      new PriorityQueue<>(Comparator.comparing(Attestation::getSlot));
+  static final Integer UNPROCESSED_BLOCKS_LENGTH = 100;
+  private final PriorityBlockingQueue<Attestation> attestationsQueue =
+      new PriorityBlockingQueue<Attestation>(
+          UNPROCESSED_BLOCKS_LENGTH, Comparator.comparing(Attestation::getSlot));
 
   public ValidatorCoordinator(ServiceConfig config) {
     this.eventBus = config.getEventBus();
     this.eventBus.register(this);
-    this.nodeIdentity = config.getKeyPair().publicKey();
+    this.nodeIdentity = Integer.decode(config.getConfig().getIdentity());
     this.numValidators = config.getConfig().getNumValidators();
     this.numNodes = config.getConfig().getNumNodes();
 
@@ -117,7 +118,15 @@ public class ValidatorCoordinator {
   private void initializeValidators() {
     // TODO: make a way to tailor which validators are ours
     // Add all validators to validatorSet hashMap
-    for (int i = 0; i < numValidators; i++) {
+
+    int startIndex = nodeIdentity * (numValidators / numNodes);
+    int endIndex =
+        startIndex
+            + (numValidators / numNodes - 1)
+            + (int) Math.floor(nodeIdentity / Math.max(1, numNodes - 1));
+    endIndex = Math.min(endIndex, numValidators - 1);
+    LOG.log(Level.DEBUG, "startIndex: " + startIndex + " endIndex: " + endIndex);
+    for (int i = startIndex; i < endIndex; i++) {
       BLSKeyPair keypair = BLSKeyPair.random(i);
       validatorSet.put(keypair.getPublicKey(), keypair);
     }

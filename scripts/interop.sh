@@ -25,11 +25,12 @@ CURRENT_TIME=$(date +%s)
 GENESIS_TIME=$((CURRENT_TIME + START_DELAY))
 
 export START_ARTEMIS=true
-export START_LIGHTHOUSE=true
-export START_TRINITY=true
-export START_NIMBUS=true
-export START_LODESTAR=true
-export START_PRYSM=true
+export START_LIGHTHOUSE=false
+export START_TRINITY=false
+export START_NIMBUS=false
+export START_LODESTAR=false
+export START_PRYSM=false
+export START_HARMONY=true
 
 zcli keys generate |zcli genesis mock --count $VALIDATOR_COUNT --genesis-time $GENESIS_TIME --out $GENESIS_FILE
 
@@ -149,6 +150,24 @@ then
 
     sleep 5
     export PORT=19005
+    export DIR=$HOME/projects/consensys/pegasys/prysm/darwin_amd64
+    tmux split-window -h -t 0 "cd $DIR; ./beacon-chain --datadir /tmp/beacon \
+   --pprof --verbosity=debug \
+   --clear-db \
+   --bootstrap-node= \
+   --interop-eth1data-votes \
+   --peer /ip4/127.0.0.1/tcp/19001/p2p/16Uiu2HAmTHarRLEGsbmjL9ZRj6AWwLN7r69izaQikc2Ay9v3YbAa \
+   --deposit-contract=0xD775140349E6A5D12524C6ccc3d6A1d4519D4029 \
+   --interop-genesis-state $GENESIS_FILE \
+   --p2p-port $PORT; sleep 60"
+
+
+fi
+
+if [ "$START_HARMONY" = true ]
+then
+
+    export PORT=19006
     export DIR=$HOME/projects/consensys/pegasys/prysm/darwin_amd64
     tmux split-window -h -t 0 "cd $DIR; ./beacon-chain --datadir /tmp/beacon \
    --pprof --verbosity=debug \

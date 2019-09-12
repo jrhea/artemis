@@ -22,15 +22,8 @@ export VALIDATOR_COUNT=$1
 export OWNED_VALIDATOR_START_INDEX=$2
 export OWNED_VALIDATOR_COUNT=$3
 export PEERS=$4
-export START_DELAY=$5
-export GENESIS_TIME=$6
-export GENESIS_FILE=$7
-INTEROP_MODE=true
-
-BOOTNODE_ENR=$(cat ~/.mothra/network/enr.dat)
-
-CURRENT_TIME=$(date +%s)
-GENESIS_TIME=$((CURRENT_TIME + START_DELAY))
+export GENESIS_FILE=$5
+export INTEROP_MODE=$6
 
 
 SCRIPT_DIR=`pwd`
@@ -42,16 +35,17 @@ rm -rf ./demo
 mkdir -p ./demo
 rm -f ../config/runConfig.*
 
-NODE_INDEX=0
+NODE_INDEX=:0
 NUM_NODES=1
 
 configure_node "mothra" $NODE_INDEX $NUM_NODES "$CONFIG_DIR/config.toml"
 sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" numValidators $VALIDATOR_COUNT
 sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" numNodes $NUM_NODES
 sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" active $INTEROP_MODE
-sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" genesisTime $GENESIS_TIME
 sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" ownedValidatorStartIndex $OWNED_VALIDATOR_START_INDEX
 sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" ownedValidatorCount $OWNED_VALIDATOR_COUNT
+sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" startState "\"$GENESIS_FILE"\"
+
 
 
 if [ "$PEERS" != "" ]
@@ -62,6 +56,8 @@ then
      sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" discovery "\"static\""
      sh configurator.sh "$CONFIG_DIR/runConfig.0.toml" isBootnode false
 fi
+
+
 
 cd $SCRIPT_DIR/demo/node_0/ && ./artemis --config=$CONFIG_DIR/runConfig.0.toml --logging=INFO
 

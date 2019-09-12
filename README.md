@@ -22,6 +22,7 @@ To setup for testing interop with other clients:
 ```shell script
 git clone --recursive https://github.com/PegaSysEng/artemis.git
 cd artemis
+git submoule update --init mothra
 ./gradlew distTar installDist
 ```
 

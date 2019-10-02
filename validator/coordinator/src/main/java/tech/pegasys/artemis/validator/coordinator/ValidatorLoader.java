@@ -53,7 +53,7 @@ public class ValidatorLoader {
       new ValidatorClient(keypair, port);
       ManagedChannel channel =
           ManagedChannelBuilder.forAddress("localhost", port).usePlaintext().build();
-      STDOUT.log(Level.INFO, "i = " + i + ": " + keypair.getPublicKey().toString());
+      STDOUT.log(Level.DEBUG, "i = " + i + ": " + keypair.getPublicKey().toString());
 
       validators.put(keypair.getPublicKey(), new ValidatorInfo(numNaughtyValidators > 0, channel));
       numNaughtyValidators--;

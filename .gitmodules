@@ -1,7 +1,7 @@
-[submodule "eth2.0-spec-tests-template"]
-	path = eth-reference-tests/src/test/resources/eth2.0-spec-tests-template
-	url = https://github.com/jrhea/eth2.0-spec-tests-template.git
 [submodule "ganache-cli"]
 	path = ganache-cli
 	url = https://github.com/trufflesuite/ganache-cli.git
 
+[submodule "eth-reference-tests/src/test/resources/eth2.0-spec-tests-template"]
+	path = eth-reference-tests/src/test/resources/eth2.0-spec-tests-template
+	url = https://github.com/jrhea/eth2.0-spec-tests-template.git

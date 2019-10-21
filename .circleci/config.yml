@@ -100,6 +100,7 @@ jobs:
       - run:
           name: ReferenceTests
           command: |
+            ./gradlew --no-daemon compileJava
             cd eth-reference-tests/src/referenceTest/java
             CLASSNAMES=$(circleci tests glob "**/*.java" \
               | cut -c 1- | sed 's@/@.@g' \
